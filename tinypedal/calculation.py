@@ -331,6 +331,26 @@ def clock_time(seconds: float, start: float = 0, scale: float = 1) -> float:
     return time_curr - time_curr // 86400 * 86400
 
 
+def clock_time_to_seconds(clock_time: str) -> float:
+    """Convert clock time (Hour:Minute) string to seconds"""
+    try:
+        data = clock_time.split(":")
+        return min(max(float(data[0]) * 3600 + float(data[1]) * 60, 0), 86400)
+    except (AttributeError, IndexError, ValueError, TypeError):
+        return 0.0
+
+
+def clockwise_median_time(start_time: float, end_time: float, max_time: float = 86400):
+    """Clockwise median time between two time on clock (86400 = 24hours in seconds)"""
+    if end_time < start_time:
+        end_time += max_time
+    delta_time = end_time - start_time
+    med_time = start_time + delta_time / 2
+    if med_time > max_time:
+        med_time -= max_time
+    return med_time
+
+
 def sec2hourminute(seconds: float) -> str:
     """Seconds to hour:minute (hour:min)"""
     return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}"
@@ -381,15 +401,6 @@ def delta_telemetry(
             dataset[index_higher][target_column],
         )
     return 0
-
-
-def clock_time_to_seconds(clock_time: str) -> float:
-    """Convert clock time (Hour:Minute) string to seconds"""
-    try:
-        data = clock_time.split(":")
-        return min(max(float(data[0]) * 3600 + float(data[1]) * 60, 0), 86400)
-    except (AttributeError, IndexError, ValueError, TypeError):
-        return 0.0
 
 
 def exp_mov_avg(factor: float, ema_last: float, source: float) -> float:

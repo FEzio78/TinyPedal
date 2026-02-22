@@ -90,10 +90,8 @@ def set_sunlight_phase(sunrise: str, sunset: str):
     """Set sunlight phase time"""
     sec_sunrise = calc.clock_time_to_seconds(sunrise)
     sec_sunset = calc.clock_time_to_seconds(sunset)
-    sec_midday = sec_sunrise + abs(sec_sunset - sec_sunrise) / 2
-    sec_midnight = sec_sunrise - (86400 - sec_sunset + sec_sunrise) / 2
-    if sec_midnight < 0:
-        sec_midnight += 86400
+    sec_midday = calc.clockwise_median_time(sec_sunrise, sec_sunset)
+    sec_midnight = calc.clockwise_median_time(sec_sunset, sec_sunrise)
     return tuple(sorted((
         (sec_sunrise, 0),
         (sec_midday, 1),
