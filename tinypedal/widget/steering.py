@@ -71,6 +71,10 @@ class Realtime(Overlay):
 
         self.pen_text = QPen()
         self.pen_text.setColor(self.wcfg["font_color"])
+        self.align_text = (
+            self.set_text_alignment("Left"),
+            self.set_text_alignment("Right"),
+        )
 
         self.draw_scale_mark()
 
@@ -120,10 +124,7 @@ class Realtime(Overlay):
         if self.wcfg["show_steering_angle"]:
             painter.setPen(self.pen_text)
             angle = self.raw_steering * self.rot_range * 0.5
-            if angle < 0:
-                painter.drawText(self.rect_text, Qt.AlignLeft | Qt.AlignVCenter, f"{-angle:.0f}")
-            elif angle > 0:
-                painter.drawText(self.rect_text, Qt.AlignRight | Qt.AlignVCenter, f"{angle:.0f}")
+            painter.drawText(self.rect_text, self.align_text[angle > 0], f"{abs(angle):.0f}")
 
     def draw_scale_mark(self, mark_gap=90, mark_num=0):
         """Draw scale mark"""

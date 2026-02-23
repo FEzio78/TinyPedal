@@ -22,6 +22,7 @@ Brake bias Widget
 
 from ..api_control import api
 from ..module_info import minfo
+from ..validator import generator_init
 from ._base import Overlay
 
 
@@ -103,10 +104,10 @@ class Realtime(Overlay):
 
         # Last data
         self.baseline_bias = 0
-        self.brake_bmigt = BrakeMigration(self.wcfg["electric_braking_allocation"])
+        self.brake_bmigt = brake_migration(self.wcfg["electric_braking_allocation"])
 
     def post_update(self):
-        self.brake_bmigt.reset()
+        self.brake_bmigt.send(-1)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -125,11 +126,7 @@ class Realtime(Overlay):
 
         # Brake migration
         if self.wcfg["show_brake_migration"]:
-            bmigt = self.brake_bmigt.calc(
-                api.read.inputs.brake_raw(),
-                bbias,
-                api.read.brake.pressure()
-            )
+            bmigt = self.brake_bmigt.send(bbias)
             self.update_bmigt(self.bar_bmigt, bmigt)
 
     # GUI update methods
@@ -173,65 +170,52 @@ class Realtime(Overlay):
         return f"{self.prefix_migt}{reading}{self.suffix_migt}"
 
 
-class BrakeMigration:
-    """Brake migration detection & calculation"""
+@generator_init
+def brake_migration(ebrake_alloc: int):
+    """Brake migration detection & calculation
 
-    __slots__ = (
-        "_bpres_max",
-        "_bpres_scale",
-        "_ebrake_alloc",
-        "_auto_detect",
-    )
+    Args:
+        ebrake_alloc: electric braking allocation, -1 = auto detect, 0 = front, 1 = rear.
+    """
+    bpres_max = 0.0
+    bpres_scale = 1.0
+    migration = 0.0
+    ebrake_alloc = ebrake_alloc
+    auto_detect = bool(ebrake_alloc == -1)
 
-    def __init__(self, ebrake_alloc: int) -> None:
-        """
-        Args:
-            ebrake_alloc: electric braking allocation, -1 = auto detect, 0 = front, 1 = rear.
-        """
-        self._bpres_max = 0.0
-        self._bpres_scale = 1.0
-        self._ebrake_alloc = ebrake_alloc
-        self._auto_detect = bool(ebrake_alloc == -1)
-
-    def calc(self, brake_raw: float, brake_bias: float, brake_pres: list) -> float:
-        """Calculate brake migration
-
-        Args:
-            brake_raw: raw brake input.
-            brake_bias: front brake bias (fraction).
-            brake_pres: brake pressure (4 tyres).
-
-        Returns:
-            Brake migration (fraction).
-        """
+    while True:
+        brake_bias = yield migration
+        brake_raw = api.read.inputs.brake_raw()
+        brake_pres = api.read.brake.pressure()
         bpres_sum = sum(brake_pres)
 
-        if self._bpres_max < bpres_sum:
-            self._bpres_max = bpres_sum
-            self._bpres_scale = 2 / bpres_sum
+        # Reset
+        if brake_bias < 0:
+            bpres_max = 0.0
+            bpres_scale = 1.0
+
+        if bpres_max < bpres_sum:
+            bpres_max = bpres_sum
+            bpres_scale = 2 / bpres_sum
 
         if brake_raw > max(brake_pres) > 0:
             max_front = max(brake_pres[:2])
             max_rear = max(brake_pres[2:])
 
-            if self._auto_detect and minfo.hybrid.motorState == 3 and max_rear > 0:
+            if auto_detect and minfo.hybrid.motorState == 3 and max_rear > 0:
                 max_brake_ratio = max_front / max_rear
                 if max_brake_ratio < 0.25:
-                    self._ebrake_alloc = 0  # front ebrake
+                    ebrake_alloc = 0  # front ebrake
                 elif max_brake_ratio > 4:
-                    self._ebrake_alloc = 1  # rear ebrake
+                    ebrake_alloc = 1  # rear ebrake
 
-            if self._ebrake_alloc == 0:
-                bias_rear = max_rear * self._bpres_scale
+            if ebrake_alloc == 0:
+                bias_rear = max_rear * bpres_scale
                 bias_front_live = 1 - bias_rear / brake_raw
             else:
-                bias_front = max_front * self._bpres_scale
+                bias_front = max_front * bpres_scale
                 bias_front_live = bias_front / brake_raw
 
-            return max(bias_front_live - brake_bias, +0)
-        return 0
-
-    def reset(self):
-        """Reset"""
-        self._bpres_max = 0.0
-        self._bpres_scale = 1.0
+            migration = max(bias_front_live - brake_bias, +0)
+        else:
+            migration = 0
