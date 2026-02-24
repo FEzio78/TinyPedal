@@ -3666,10 +3666,10 @@ Show rebound travel (millimeter) between static and minimum recorded suspension 
 Show travel ratio (percentage) between bump travel and total travel. For example, a `70%` reading indicates 70% of travel is spent in bump, and 30% of travel in rebound. A `50%` reading indicates equal travel in bump and rebound travel.
 
     show_minimum_position
-Show minimum recorded suspension position under extension (millimeter).
+Show minimum recorded suspension position (millimeter) where suspension is reaching its maximum extension.
 
     show_maximum_position
-Show maximum recorded suspension position under compression (millimeter).
+Show maximum recorded suspension position (millimeter) where suspension is reaching its maximum compression.
 
     show_live_position
 Show current suspension position (millimeter).
