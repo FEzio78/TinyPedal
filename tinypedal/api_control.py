@@ -23,6 +23,7 @@ API control
 import logging
 
 from . import api_connector, realtime_state
+from .const_api import API_MAP_ALIAS
 from .const_app import PLATFORM
 from .setting import cfg
 
@@ -130,8 +131,13 @@ class APIControl:
 
     @property
     def name(self) -> str:
-        """API full name output"""
+        """API full name"""
         return self._api.NAME
+
+    @property
+    def alias(self) -> str:
+        """API alias name"""
+        return API_MAP_ALIAS[self._api.NAME]
 
 
 api = APIControl()

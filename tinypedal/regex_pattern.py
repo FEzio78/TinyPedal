@@ -30,6 +30,7 @@ from .const_api import API_MAP_ALIAS
 # Compiled regex function
 rex_hex_color = re.compile(r"^#[0-9A-F]{3}$|^#[0-9A-F]{6}$|^#[0-9A-F]{8}$", flags=re.IGNORECASE)
 rex_invalid_char = re.compile(r'[\\/:*?"<>|]')
+rex_special_char = re.compile(r'[\\/:*?"<>|!@#$%^&\'{}~`;]')
 rex_number_extract = re.compile(r"\d*\.?\d+")
 
 # Bool
