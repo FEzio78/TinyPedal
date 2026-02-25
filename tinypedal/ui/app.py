@@ -385,10 +385,10 @@ class AppWindow(QMainWindow):
             self.quit_app()
 
     @Slot(bool)  # type: ignore[operator]
-    def reload_preset(self):
+    def reload_preset(self, check_singleton: bool):
         """Reload current preset"""
         # Cancel loading while any config dialog opened
-        if DialogSingleton.is_opened(ConfigType.CONFIG):
+        if check_singleton and DialogSingleton.is_opened(ConfigType.CONFIG):
             msg_text = "Cannot load preset while Config dialog is opened."
             QMessageBox.warning(self, "Error", msg_text)
             cfg.set_next_to_load("")

@@ -18,6 +18,8 @@
 
 """
 Loader function
+
+Important: DO NOT call those functions in non-main thread.
 """
 
 import logging
