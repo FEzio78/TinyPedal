@@ -1,7 +1,27 @@
-WIP
+2.42.0 (2026-02-25)
 -----------------------------
-* Auto load preset
-  - Fixed an issue that would cause TinyPedal to freeze or crash when auto loading another preset (reported by user "yhnp78" & "ssalamon").
+* Important Fix
+  - Fixed an issue with "auto load preset" function that would cause TinyPedal to freeze or crash (reported by user "yhnp78" & "ssalamon").
+
+* [New]Auto Backup Car Setup
+  - Implemented support for auto backup car setup for "LMU" (RF2 not supported yet). This feature allows to auto backup car setup file whenever exits pit lane with new adjustment to setup, which can be handy in various situations, especially in the event such as unexpectedly disconnected from server.
+  - Added "Enable Auto Backup Car Setup" global option to API menu, which allows to quickly toggle "auto backup car setup" option. This option is disabled by default.
+  - Added "Auto Backup Car Setup Enabled" notification to main window, which shows when "auto backup car setup" enabled.
+  - Added new default user path "carsetups" in "TinyPedal" folder, which stores car setup backup files, and can be customized and viewed via "User Path" and "Open Folder" in Config menu.
+  - Following options must be enabled to allow "auto backup car setup" function to work:
+    - "Enable Auto Backup Car Setup" from "API" menu.
+    - "Stats Module" from "Module" tab.
+    - "Enable RestAPI Access" & "Enable Garage Setup Info" from API option dialog.
+  - Additional notes:
+    - Auto backup car setup function is disabled while in "spectate mode" or "state overriding".
+    - Backup file is only generated after leaving pit lane. Stint best lap time (if available) will be auto-appended to backup file name after back to garage.
+    - Only one backup file of the most recent setup will be generated if no changes were made.
+    - Backup file name format:
+      [game name] - [date] - [time] - [track name] - [class name] - [brand name] - [stint best lap time]
+      If brand name is not available, vehicle name will be used instead.
+
+* Stats Module
+  - Added car setup auto backup function.
 
 2.41.0 (2026-02-20)
 -----------------------------

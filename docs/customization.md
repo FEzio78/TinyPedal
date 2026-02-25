@@ -302,6 +302,14 @@ How to prepare brand logo image:
 [**`Back to Top`**](#)
 
 
+## Car setup
+Car setup files for specific games are stored under `TinyPedal\carsetups` folder (default). Those files are auto generated backups via `Auto Backup Car Setup` function.
+
+See [Telemetry API](#telemetry-api) section for details about `Auto Backup Car Setup` function.
+
+[**`Back to Top`**](#)
+
+
 # Command line arguments
 **Command line arguments can be passed to script or executable to enable additional features.**
 
@@ -366,6 +374,23 @@ Set `true` to remember and load API selection from preset; set `false` to select
 
     enable_legacy_api_selection
 Enable legacy API selection. This option is disabled on Windows by default, and enabled on Linux.
+
+    enable_auto_backup_car_setup
+Enable `Auto Backup Car Setup` function, currently support `LMU`.
+
+This option allows to auto backup [Car Setup](#car-setup) file whenever exits pit lane with new adjustment to setup, which can be handy in various situations, especially in the event such as unexpectedly disconnected from server.
+
+To allow `Auto Backup Car Setup` function to work, following additional options must be enabled:
+- `Stats Module` from `Module` tab.
+- `Enable RestAPI Access` & `Enable Garage Setup Info` from `API` option dialog.
+
+Additional notes:
+- Auto backup car setup function is disabled while in `spectate mode` or `state overriding`.
+- Backup file is only generated after leaving pit lane. Stint best lap time (if available) will be auto-appended to backup file name after back to garage.
+- Only one backup file of the most recent setup will be generated if no changes were made.
+- Backup file name format:\
+    `[game name]` - `[date]` - `[time]` - `[track name]` - `[class name]` - `[brand name]` - `[stint best lap time]`\
+    **If brand name is not available, vehicle name will be used instead.*
 
 [**`Back to Top`**](#)
 
@@ -696,6 +721,7 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
         trackmap/
         pacenotes/
         tracknotes/
+        carsetups/
 
 * On Linux, all user paths are set outside TinyPedal root folder as absolute paths:
 
@@ -705,6 +731,7 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
         home/username/.config/TinyPedal/tracknotes/
         home/username/.local/share/TinyPedal/deltabest/
         home/username/.local/share/TinyPedal/trackmap/
+        home/username/.local/share/TinyPedal/carsetups/
 
 [**`Back to Top`**](#)
 

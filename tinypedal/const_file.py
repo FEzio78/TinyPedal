@@ -61,6 +61,7 @@ class FileExt:
     TXT = ".txt"
     INI = ".ini"
     BAK = ".bak"
+    SVM = ".svm"
     JSON = ".json"
     # Image
     SVG = ".svg"

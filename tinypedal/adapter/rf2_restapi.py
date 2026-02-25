@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import Any, Callable, Mapping, NamedTuple
 
 from ..const_common import EMPTY_DICT, WHEELS_NA
+from ..process.garage import export_lmu_car_setup
 from ..process.vehicle import (
     absolute_refilling,
     expected_usage,
@@ -56,6 +57,7 @@ class RestAPIData:
         "brakeWear",
         "suspensionDamage",
         "stintUsage",
+        "lastCarSetup",
     )
 
     def __init__(self):
@@ -76,6 +78,7 @@ class RestAPIData:
         self.brakeWear: tuple[float, float, float, float] = WHEELS_NA
         self.suspensionDamage: tuple[float, float, float, float] = WHEELS_NA
         self.stintUsage: Mapping[str, tuple[float, float, float, float, int]] = EMPTY_DICT
+        self.lastCarSetup: tuple[str, ...] = ()
 
 
 class ResRawOutput(NamedTuple):
@@ -165,6 +168,7 @@ LMU_GARAGESETUP = (
     ResParOutput("steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
     ResParOutput("expectedFuelConsumption", 0.0, expected_usage, ("VM_FUEL_CAPACITY", "stringValue")),
     ResParOutput("expectedVirtualEnergyConsumption", 0.0, expected_usage, ("VM_VIRTUAL_ENERGY", "stringValue")),
+    ResParOutput("lastCarSetup", (), export_lmu_car_setup),
 )
 LMU_SESSIONSINFO = (
     ResRawOutput("timeScale", 1, ("SESSSET_race_timescale", "currentValue")),

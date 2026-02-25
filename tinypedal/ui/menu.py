@@ -436,6 +436,10 @@ class APIMenu(QMenu):
         self.legacy_api.setCheckable(True)
         self.legacy_api.triggered.connect(self.toggle_legacy_api)
 
+        self.carsetup_backup = self.addAction("Enable Auto Backup Car Setup")
+        self.carsetup_backup.setCheckable(True)
+        self.carsetup_backup.triggered.connect(self.toggle_carsetup_backup)
+
         config_api = self.addAction("Options")
         config_api.triggered.connect(self.open_config_api)
         self.addSeparator()
@@ -453,6 +457,7 @@ class APIMenu(QMenu):
                 action.setChecked(True)
                 break
         self.api_selection.setChecked(cfg.telemetry["enable_api_selection_from_preset"])
+        self.carsetup_backup.setChecked(cfg.telemetry["enable_auto_backup_car_setup"])
         self.legacy_api.setChecked(cfg.telemetry["enable_legacy_api_selection"])
 
     def toggle_api_selection(self):
@@ -461,6 +466,13 @@ class APIMenu(QMenu):
         cfg.telemetry["enable_api_selection_from_preset"] = not enabled
         cfg.save(cfg_type=ConfigType.CONFIG)
         menu_reload_only()
+
+    def toggle_carsetup_backup(self):
+        """Toggle auto car setup backup"""
+        enabled = cfg.telemetry["enable_auto_backup_car_setup"]
+        cfg.telemetry["enable_auto_backup_car_setup"] = not enabled
+        cfg.save(cfg_type=ConfigType.CONFIG)
+        menu_refresh_only()
 
     def toggle_legacy_api(self):
         """Toggle legacy API selection"""

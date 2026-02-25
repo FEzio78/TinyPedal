@@ -57,6 +57,7 @@ GLOBAL_DEFAULT = {
     "telemetry": {
         "api_name": API_DEFAULT_NAME,
         "enable_api_selection_from_preset": True,
+        "enable_auto_backup_car_setup": False,
         "enable_legacy_api_selection": (not PLATFORM.WINDOWS),
     },
     "user_path": {
@@ -69,6 +70,7 @@ GLOBAL_DEFAULT = {
         "track_map_path": set_default_data_path("trackmap/"),
         "pace_notes_path": set_default_config_path("pacenotes/"),
         "track_notes_path": set_default_config_path("tracknotes/"),
+        "car_setups_path": set_default_data_path("carsetups/"),
     },
     "notification": {
         "notify_locked_preset": True,
@@ -83,6 +85,9 @@ GLOBAL_DEFAULT = {
         "notify_global_hotkey": True,
         "font_color_global_hotkey": "#FFFFFF",
         "bkg_color_global_hotkey": "#885544",
+        "notify_auto_backup_car_setup": True,
+        "font_color_auto_backup_car_setup": "#FFFFFF",
+        "bkg_color_auto_backup_car_setup": "#334499",
     },
     "track_map_viewer": {
         "inner_margin": 6,

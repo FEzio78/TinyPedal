@@ -700,6 +700,10 @@ class Vehicle(ABC):
     def impact_position(self, index: int | None = None) -> tuple[float, float]:
         """Last impact position x,y coordinates"""
 
+    @abstractmethod
+    def setup(self) -> tuple[str, ...]:
+        """Car setup data"""
+
 
 class Wheel(ABC):
     """Wheel & suspension"""

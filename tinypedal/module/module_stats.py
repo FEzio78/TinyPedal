@@ -22,12 +22,21 @@ Stats module
 
 from __future__ import annotations
 
+from time import localtime, strftime
+
 from .. import calculation as calc
 from .. import realtime_state
 from ..api_control import api
 from ..const_common import FLOAT_INF, POS_XYZ_INF
 from ..module_info import minfo
+from ..userfile.car_setup import (
+    rename_car_setup_file,
+    save_car_setup_file,
+    set_car_setup_filename,
+    set_car_setup_laptime,
+)
 from ..userfile.driver_stats import DriverStats, load_driver_stats, save_driver_stats
+from ..validator import generator_init
 from ._base import DataModule
 
 
@@ -49,6 +58,7 @@ class Realtime(DataModule):
         max_moved_distance = 1500 * update_interval
         podium_by_class = self.mcfg["enable_podium_by_class"]
         vehicle_class = self.mcfg["vehicle_classification"]
+        gen_auto_backup_car_setup = auto_backup_car_setup(self.cfg.path.car_setups, self.cfg.user.brands)
 
         while not _event_wait(update_interval):
 
@@ -58,6 +68,9 @@ class Realtime(DataModule):
                     reset = False  # make sure stats not saved
                     update_interval = self.idle_interval
                 continue
+
+            if not realtime_state.paused and self.cfg.telemetry["enable_auto_backup_car_setup"]:
+                next(gen_auto_backup_car_setup)
 
             if realtime_state.active:
                 if not reset:
@@ -210,3 +223,73 @@ def finish_position(podium_by_class: bool) -> int:
             if api.read.vehicle.place(index) > plr_place:
                 place_higher += 1
     return total_class_vehicle - place_higher
+
+
+@generator_init
+def auto_backup_car_setup(filepath: str, brands_data: dict):
+    """Auto backup car setup"""
+    last_reset = None  # reset check
+    data_available = False
+
+    best_laptime = FLOAT_INF
+    temp_data = ()
+    data_hash = 0
+    last_data_hash = 0
+    temp_filename = ""
+    last_session_elapsed = -1
+
+    while True:
+        yield None
+
+        # Reset condition
+        session_elapsed = api.read.session.elapsed()
+        is_new_session = (last_session_elapsed > session_elapsed)
+        last_session_elapsed = session_elapsed
+        reset = api.read.vehicle.in_garage() or is_new_session
+
+        # Reset
+        if last_reset != reset:
+            last_reset = reset
+
+            if reset:
+                if data_available and temp_filename:
+                    # Rename temporary file with additional info after back to garage
+                    rename_car_setup_file(
+                        filepath=filepath,
+                        old_filename=temp_filename,
+                        new_filename=f"{temp_filename} - {set_car_setup_laptime(best_laptime)}",
+                    )
+
+                best_laptime = FLOAT_INF
+                data_available = False
+                temp_filename = ""
+
+        if not reset:
+            # Stint best time
+            if data_available:
+                last_valid_laptime = api.read.timing.last_laptime()
+                if 0 < last_valid_laptime < best_laptime:
+                    best_laptime = last_valid_laptime
+            # Get setup data while not in pits
+            elif not api.read.vehicle.in_pits():
+                temp_data = api.read.vehicle.setup()
+                if temp_data:
+                    data_available = True
+                    data_hash = hash(temp_data)
+                    # Save temporary file first
+                    if last_data_hash != data_hash:
+                        temp_filename = set_car_setup_filename(
+                            api.alias,
+                            strftime("%Y-%m-%d %H-%M-%S", localtime()),
+                            api.read.session.track_name(),
+                            api.read.vehicle.class_name(),
+                            brands_data.get(api.read.vehicle.vehicle_name(), api.read.vehicle.vehicle_name()),
+                        )
+                        save_car_setup_file(
+                            filepath=filepath,
+                            filename=temp_filename,
+                            dataset=temp_data,
+                        )
+                    # Reset
+                    temp_data = ()
+                    last_data_hash = data_hash

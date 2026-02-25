@@ -53,6 +53,9 @@ class NotifyBar(QWidget):
         self.hotkey = QPushButton("Global Hotkey Enabled")
         self.hotkey.setVisible(False)
 
+        self.carsetup = QPushButton("Auto Backup Car Setup Enabled")
+        self.carsetup.setVisible(False)
+
         self.updates = UpdatesNotifyButton("")
         self.updates.setVisible(False)
 
@@ -61,6 +64,7 @@ class NotifyBar(QWidget):
         layout.addWidget(self.spectate)
         layout.addWidget(self.pacenotes)
         layout.addWidget(self.hotkey)
+        layout.addWidget(self.carsetup)
         layout.addWidget(self.updates)
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -108,6 +112,16 @@ class NotifyBar(QWidget):
             self.hotkey.setStyleSheet(
                 f"color: {cfg.notification['font_color_global_hotkey']};"
                 f"background: {cfg.notification['bkg_color_global_hotkey']};"
+            )
+        # Auto backup car setup
+        self.carsetup.setVisible(
+            cfg.notification["notify_auto_backup_car_setup"]
+            and cfg.telemetry["enable_auto_backup_car_setup"]
+        )
+        if self.carsetup.isVisible():
+            self.carsetup.setStyleSheet(
+                f"color: {cfg.notification['font_color_auto_backup_car_setup']};"
+                f"background: {cfg.notification['bkg_color_auto_backup_car_setup']};"
             )
 
 

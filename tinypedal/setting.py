@@ -109,6 +109,7 @@ class FilePath:
         "sector_best",
         "track_map",
         "track_notes",
+        "car_setups",
     )
 
     def __init__(self):
@@ -125,6 +126,7 @@ class FilePath:
         self.sector_best = ""
         self.track_map = ""
         self.track_notes = ""
+        self.car_setups = ""
 
     def update(self, user_path: dict, default_path: dict):
         """Update path variables from global user path dictionary"""

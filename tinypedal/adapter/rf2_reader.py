@@ -923,6 +923,10 @@ class Vehicle(_reader.Vehicle, DataAdapter):
         pos = self.shmm.rf2TeleVeh(index).mLastImpactPos
         return -rmnan(pos.x), rmnan(pos.z)
 
+    def setup(self) -> tuple[str, ...]:
+        """Car setup data"""
+        return self.rest.telemetry().lastCarSetup
+
 
 class Wheel(_reader.Wheel, DataAdapter):
     """Wheel & suspension"""
